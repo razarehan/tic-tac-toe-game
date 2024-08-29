@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-export default function Player({ initialName, symbol }) {
+export default function Player({ initialName, symbol, isActive }) {
     const [playerName, setPlayerName] = useState(initialName);
     const [isEditing, setIsEditing] = useState(false);
     let playerNameContainer;
@@ -15,7 +15,7 @@ export default function Player({ initialName, symbol }) {
     function handleName(event) {
         setPlayerName(event.target.value);
     }
-    return <li>
+    return <li className={isActive ? 'player active': ''}>
         <span className="player">
             {playerNameContainer}
             <span className="player-symbol">{symbol}</span>
