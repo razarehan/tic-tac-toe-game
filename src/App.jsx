@@ -5,7 +5,12 @@ import Log from "./components/Log";
 import GameOver from "./components/GameOver";
 import { WINNING_COMBINATIONS } from "./WINNING_COMBINATIONS"
 
-const initialGameBoard = [
+const PLAYER = {
+  X: 'Player 1',
+  O: 'Player 2'
+}
+
+const INITIAL_GAME_BOARD = [
   [null, null, null],
   [null, null, null],
   [null, null, null]
@@ -19,14 +24,40 @@ function derivedActivePlayer(gameTurns) {
   return currentPlayer;
 }
 
+function derivedGameBoard(gameTurns) {
+  let gameBoard = [...INITIAL_GAME_BOARD.map(innerArray=>[...innerArray])];
+
+  for(const turn of gameTurns) {
+    const { square, player } = turn;
+    const { row, col } = square;
+
+    gameBoard[row][col] = player;
+  }
+
+  return gameBoard
+}
+
+function derivedWinner(gameBoard, player) {
+  let winner;
+
+  for(const comination of WINNING_COMBINATIONS) {
+    const firstCell = gameBoard[comination[0].row][comination[0].column];
+    const secondCell = gameBoard[comination[1].row][comination[1].column];
+    const thirdCell = gameBoard[comination[2].row][comination[2].column];
+    
+    if(firstCell && firstCell === secondCell && secondCell === thirdCell) {
+      winner = player[firstCell];
+    }
+  }
+  
+  return winner;
+}
+
 function App() {
   const [ gameTurns, setGameTurns ] = useState([]);
-  const [ players, setPlayers ] = useState({
-    X: 'Player 1',
-    O: 'Player 2'
-  });
+  const [ players, setPlayers ] = useState(PLAYER);
+
   const activePlayer = derivedActivePlayer(gameTurns);
-  let winner = null;
 
   function handleSelectSquare(row, col) {
     setGameTurns((prevTurn) => {
@@ -38,24 +69,10 @@ function App() {
     })
   }
   
-  let myGameBoard = [...initialGameBoard.map(innerArray=>[...innerArray])];
-    
-  for(const turn of gameTurns) {
-      const { square, player } = turn;
-      const { row, col } = square;
+  const myGameBoard = derivedGameBoard(gameTurns);
 
-      myGameBoard[row][col] = player;
-  }
 
-  for(const comination of WINNING_COMBINATIONS) {
-    const firstCell = myGameBoard[comination[0].row][comination[0].column];
-    const secondCell = myGameBoard[comination[1].row][comination[1].column];
-    const thirdCell = myGameBoard[comination[2].row][comination[2].column];
-    
-    if(firstCell && firstCell === secondCell && secondCell === thirdCell) {
-      winner = players[firstCell];
-    }
-  }
+  const winner = derivedWinner(myGameBoard, players);
 
   function handleRestart() {
     setGameTurns([]);
@@ -75,8 +92,8 @@ function App() {
     <div id="game-container">
       {(winner || hasDraw) && <GameOver winner={winner} onRstart={handleRestart}/>}
       <ol id="players" className="highlight-player">
-        <Player onSave={handlePlayerNameChange} isActive={activePlayer==='X'} initialName="Player 1" symbol="X"/>
-        <Player isActive={activePlayer==='O'} initialName="Player 2" symbol="O"/>
+        <Player onSave={handlePlayerNameChange} isActive={activePlayer==='X'} initialName={PLAYER.X} symbol="X"/>
+        <Player onSave={handlePlayerNameChange} isActive={activePlayer==='O'} initialName={PLAYER.O} symbol="O"/>
       </ol>
       <GameBoard onSelectSquare={ handleSelectSquare }
         board={ myGameBoard }/>
