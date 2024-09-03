@@ -284,6 +284,9 @@ ol {
   font: inherit;
   margin-top: 1.5rem;
 }
+.tt-capitalize {
+  text-transform: capitalize;
+}
 
 @keyframes slide-in-from-left {
   0% {
